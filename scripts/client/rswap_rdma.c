@@ -896,12 +896,14 @@ int rdma_session_connect(struct rdma_session_context *rdma_session)
 		ret = rswap_init_rdma_queue(rdma_session, i);
 		if (unlikely(ret)) {
 			printk(KERN_ERR "%s,init rdma queue [%d] failed.\n", __func__, i);
+			goto err;
 		}
 
 		// Create device PD, QP CP
 		ret = rswap_create_rdma_queue(rdma_session, i);
 		if (unlikely(ret)) {
 			printk(KERN_ERR "%s, Create rdma queues failed. \n", __func__);
+			goto err;
 		}
 
 		// Connect to memory server
