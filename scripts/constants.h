@@ -35,7 +35,9 @@
 #define MAX_REGION_NUM \
 	((size_t)MAX_FREE_MEM_GB / REGION_SIZE_GB) // for msg passing?
 
-// number of segments, get from ibv_query_device. Use 30, or it's not safe..
-#define MAX_REQUEST_SGL 32
+// number of segments, get from ibv_query_device.
+// For ConnectX-5 IB, though the hardware reports 30, it can only support up to 19.
+// For ConnectX-3 IB, though the hardware supports 32, but we can only use 30 here. Or it's not safe.
+#define MAX_REQUEST_SGL 19
 
 #endif // __RSWAP_CONSTANTS_H
