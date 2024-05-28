@@ -6,7 +6,7 @@
 version="5.4.0"
 #LocalVersion="adc"
 # Or remove the suffix
-LocalVersion=
+LocalVersion="-memliner"
 
 
 num_core=`nproc`
@@ -47,9 +47,9 @@ delete_old_kernel_contents () {
 		sudo rm /boot/initramfs-${version}${LocalVersion}.img   /boot/System.map-${version}${LocalVersion}  /boot/vmlinuz-${version}${LocalVersion}
 	elif [ $OS_DISTRO == "Ubuntu" ]
 	then
-		echo "sudo rm /boot/initrd.img-${version}*   /boot/System.map-${version}*  /boot/vmlinuz-${version}* "
+		echo "sudo rm /boot/initrd.img-${version}${LocalVersion}*   /boot/System.map-${version}${LocalVersion}*  /boot/vmlinuz-${version}${LocalVersion}* "
 		sleep 1
-		sudo rm /boot/initrd.img-${version}*   /boot/System.map-${version}*  /boot/vmlinuz-${version}*
+		sudo rm /boot/initrd.img-${version}${LocalVersion}*   /boot/System.map-${version}${LocalVersion}*  /boot/vmlinuz-${version}${LocalVersion}*
 	fi
 }
 
@@ -123,9 +123,9 @@ then
 	sleep 1
 	make oldconfig
 
-	echo "make LOCALVERSION=${localVersion}  -j${num_core} "
+	echo "make LOCALVERSION=${LocalVersion}  -j${num_core} "
 	sleep 1
-	make LOCALVERSION="${localVersion}"  -j${num_core} 
+	make LOCALVERSION="${LocalVersion}"  -j${num_core} 
 
 elif [ "${op}" = "install" ]
 then
