@@ -1169,6 +1169,9 @@ bool G1CollectedHeap::do_full_collection(bool explicit_gc,
 		// Full GC was not completed.
 		return false;
 	}
+	// [gc breakdown]
+	GCMajfltStats gc_majflt_stats;
+	gc_majflt_stats.start();
 
 	const bool do_clear_all_soft_refs = clear_all_soft_refs ||
 			soft_ref_policy()->should_clear_all_soft_refs();
@@ -1179,6 +1182,8 @@ bool G1CollectedHeap::do_full_collection(bool explicit_gc,
 	collector.prepare_collection();
 	collector.collect();
 	collector.complete_collection();
+
+	gc_majflt_stats.end_and_log("full");
 
 	// Full collection was successfully completed.
 	return true;
@@ -3129,6 +3134,10 @@ G1CollectedHeap::do_collection_pause_at_safepoint(double target_pause_time_ms) {
 		_have_done ++;
 	}
 
+	// [gc breakdown]
+	GCMajfltStats gc_majflt_stats;
+	gc_majflt_stats.start();
+
 	// Inner scope for scope based logging, timers, and stats collection
 	{
 		EvacuationInfo evacuation_info;
@@ -3410,6 +3419,7 @@ G1CollectedHeap::do_collection_pause_at_safepoint(double target_pause_time_ms) {
 		_gc_timer_stw->register_gc_end();
 		_gc_tracer_stw->report_gc_end(_gc_timer_stw->gc_end(), _gc_timer_stw->time_partitions());
 	}
+	gc_majflt_stats.end_and_log("young");
 	// It should now be safe to tell the concurrent mark thread to start
 	// without its logging output interfering with the logging output
 	// that came from the pause.
