@@ -3,22 +3,24 @@
 app=$1
 ratio=$2
 
+passwd=ziyue321
+
 # Configure spark master IP here:
-# spark_master=spark://IP:7277
+spark_master=spark://${HOSTNAME}:7077
 
 # You can get jars and data files from https://drive.google.com/file/d/10G0BA3ThPRtaoPCIGp-ikXpQ8YdiUusn/view?usp=sharing
 
 spark_path="${HOME}/spark-3.0.0-preview2-bin-hadoop3.2"
 
-echo "true" > /sys/kernel/mm/swap/vma_ra_enabled
-echo 16 > /sys/kernel/mm/swap/readahead_win
+echo $passwd | sudo -S echo "true" > /sys/kernel/mm/swap/vma_ra_enabled
+echo $passwd | sudo -S echo 16 > /sys/kernel/mm/swap/readahead_win
 
 if [[ ${ratio} == "25" ]]
 then
-    echo 9g > /sys/fs/cgroup/memory/memctl/memory.limit_in_bytes
+    echo 9g > /sys/fs/cgroup/memory/huaziyue-memctl/memory.limit_in_bytes
 elif [[ ${ratio} == "13" ]]
 then
-    echo 5g > /sys/fs/cgroup/memory/memctl/memory.limit_in_bytes
+    echo 5g > /sys/fs/cgroup/memory/huaziyue-memctl/memory.limit_in_bytes
 fi
 
 if [[ ${app} == "lr" ]]

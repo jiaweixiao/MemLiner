@@ -12,7 +12,7 @@ SWAP_PARTITION_SIZE="48G"
 
 if [ -z "$HOME" ]
 then
-    home_dir="/home/haoran"
+    home_dir="/home/huaziyue"
 else
     home_dir="$HOME"
 fi
