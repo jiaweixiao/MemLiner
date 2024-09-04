@@ -26,7 +26,7 @@ home_dir="$HOME"
 num_core=16
 # in MB, 32GB as default
 build_mem="32768"
-boot_jdk="${home_dir}/jdk-12.0.2"
+boot_jdk="${home_dir}/jdks/jdk-12.0.2"
 
 
 ## Do the action

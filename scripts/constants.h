@@ -36,6 +36,6 @@
 	((size_t)MAX_FREE_MEM_GB / REGION_SIZE_GB) // for msg passing?
 
 // number of segments, get from ibv_query_device. Use 30, or it's not safe..
-#define MAX_REQUEST_SGL 32
+#define MAX_REQUEST_SGL 19
 
 #endif // __RSWAP_CONSTANTS_H

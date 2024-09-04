@@ -2276,6 +2276,14 @@ bool G1CollectedHeap::try_collect(GCCause::Cause cause, bool retry_on_gc_failure
 					GCLocker::stall_until_clear();
 				}
 			}
+			//shengkai fix memliner GClocker
+	    	} else if (GCLocker::should_discard(cause, gc_count_before)) {
+	       		// Return false to be consistent with VMOp failure due to
+	      		// another collection slipping in after our gc_count but before
+	      		// our request is processed.  _gc_locker collections upgraded by
+	      		// GCLockerInvokesConcurrent are handled above and never discarded.
+			log_info(gc, jni)("[DEBUG] g1 discard 1 GCLocker GC");
+	      		return false;
 		} else {
 			if (cause == GCCause::_gc_locker || cause == GCCause::_wb_young_gc
 					DEBUG_ONLY(|| cause == GCCause::_scavenge_alot)) {

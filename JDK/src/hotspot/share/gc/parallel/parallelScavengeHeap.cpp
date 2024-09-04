@@ -507,6 +507,12 @@ void ParallelScavengeHeap::collect(GCCause::Cause cause) {
     full_gc_count = total_full_collections();
   }
 
+  //shengkai fix memliner GClocker
+  if (GCLocker::should_discard(cause, gc_count)) {
+    log_info(gc, jni)("[DEBUG] discard 1 GCLocker GC");
+    return;
+  }
+
   VM_ParallelGCSystemGC op(gc_count, full_gc_count, cause);
   VMThread::execute(&op);
 }
