@@ -14,7 +14,7 @@ Two sets of environment have been tested for MemLiner:
 
 ```bash
 Ubuntu 18.04
-Linux 5.4
+Linux 5.11
 OpenJDK 12.04
 GCC 5.5 
 MLNX_OFED driver 4.9-2.2.4.0
@@ -22,7 +22,7 @@ MLNX_OFED driver 4.9-2.2.4.0
 or
 
 CentOS 7.5 - 7.7
-Linux 5.4
+Linux 5.11
 OpenJDK 12.04
 GCC 5.5
 MLNX_OFED driver 4.9-2.2.4.0 
@@ -32,7 +32,7 @@ Among the requirements, the Linux version, OpenJDK version and MLNX-OFED driver 
 
 ## 1.2 Install Kernel
 
-Next we will use Ubuntu 18.04 as an example to show how to build and install the kernel. Please change the kernel on both CPU and memory server.
+Next we will use Ubuntu 18.04 as an example to show how to build and install the kernel. Please download and install the kernel on both CPU server.
 
 （1）Change the grub parameters
 
@@ -40,7 +40,7 @@ Next we will use Ubuntu 18.04 as an example to show how to build and install the
 sudo vim /etc/default/grub
 
 # Choose the bootup kernel version as 5.4.0
-GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 5.4.0"
+GRUB_DEFAULT="Advanced options for Ubuntu>Ubuntu, with Linux 5.11.0-memliner"
 
 # Change the value of GRUB_CMDLINE_LINUX:
 GRUB_CMDLINE_LINUX="nokaslr transparent_hugepage=madvise intel_pstate=disable idle=poll processor.max_cstate=0 intel_idle.max_cstate=0"
@@ -50,8 +50,12 @@ GRUB_CMDLINE_LINUX="nokaslr transparent_hugepage=madvise intel_pstate=disable id
 （2）Build the Kernel source code && install it. In case new kernel options are prompted during `sudo ./build_kernel.sh build`, press enter to use the default options.
 
 ```bash
+# Download kernel 5.11
+git clone git@github.com:jiaweixiao/linux-5.11.git
+
 # Change to the kernel folder:
-cd MemLiner/Kernel
+cd linux-5.11
+git checkout memliner
 
 # In case new kernel options are prompted, press enter to use the default options.
 sudo ./build_kernel.sh build
@@ -170,51 +174,13 @@ And then, repeat the steps from 3.3.1 to 3.3.3.
 ## 1.4 Build the RemoteSwap data path
 
 The user needs to build the RemoteSwap on both the CPU server and memory servers.
-
-### 1.4.1  Configuration
-
-(1) IP configuration
-
-Assign memory server’s ip address to both the CPU server and memory servers. Take `guest@zion-1.cs.ucla.edu`(CPU server) and `guest@zion-4.cs.ucla.edu`(Memory server) as an example. Memory server’s InfiniBand IP address is 10.0.0.4: (InfiniBand IP of zion-12 is 10.0.0.12. IPs of IB on other servers can be printed with `ifconfig ib0 | grep inet`)
-
-```cpp
-// (1) CPU server
-// Replace the ${HOME}/Memliner/scripts/client/rswap_rdma.c:783:	char ip[] = "memory.server.ib.ip";
-// to:
-char ip[] = "10.0.0.4";
-
-// (2) Memory server
-// Replace the ${HOME}/Memliner/scripts/server/rswap_server.cpp:61:	const char *ip_str = "memory.server.ib.ip";
-// to:
-const char *ip_str = "10.0.0.4";
+```
+git clone git@github.com:jiaweixiao/remoteswap.git
+cd remoteswap
+git checkout linux-5.11-vanilla
 ```
 
-(2) Available cores configuration for RemoteSwap server (memory server).
-
-Replace the macro, `ONLINE_CORES`, defined in `MemLiner/scripts/server/rswap_server.hpp` to the number of cores of the CPU server (which can be printed by command line, `nproc` , on the CPU server.)
-
-```cpp
-// ${HOME}/MemLiner/scripts/server/rswap_server.hpp:38:
-#define ONLINE_CORES 16
-```
-
-### 1.4.2 Build the RemoteSwap datapath
-
-(1) Build the client end on the CPU server, e.g., `guest@zion-1.cs.ucla.edu`
-
-```bash
-cd ${HOME}/MemLiner/scripts/client
-make clean && make
-```
-
-(2) Build the server end on the memory server, e.g., `guest@zion-4.cs.ucla.edu`
-
-```bash
-cd ${HOME}/MemLiner/scripts/server
-make clean && make
-```
-
-And then, please refer to **Section 1.1** for how to connect the CPU server and the memory server.
+And then, please refer to [remoteswap](https://github.com/jiaweixiao/remoteswap/tree/linux-5.11-vanilla?tab=readme-ov-file#usage) for how to connect the CPU server and the memory server.
 
 ## 1.5 Build MemLiner (OpenJDK) on CPU server
 
@@ -232,33 +198,7 @@ make JOBS=32
 
 **Warning**: The CPU server and the memory server only need to be connected once, and the connection will persist until reboot or memory server process is killed. Before trying to connect, check whether they are already connected. See Question#1 in FAQ for instructions. If it is connected, directly go to section 1.2.
 
-Launch the memory server:
-
-```bash
-# Log into memory server, e.g., guest@zion-4.cs.ucla.edu or guest@zion-12.cs.ucla.edu
-
-# Let memory server run in background
-tmux
-
-# Launch the memory server and wait the connection from CPU serever
-cd ${HOME}/MemLiner/scripts/server
-./rswap-server
-```
-
-Launch the CPU server:
-
-```bash
-# Log into the CPU server, e.g., guest@zion-1.cs.ucla.edu or guest@zion-3.cs.ucla.edu
-cd ${HOME}/MemLiner/scripts/client
-./manage_rswap_client.sh install
-
-# Confirm the success of the RDMA connection between the CPU server and the memory server.
-# Print the kernel log by:
-dmesg | grep "frontswap module loaded"
-
-# the output should be:
-[Some timestamp] frontswap module loaded
-```
+Please refer to section 1.4.
 
 ## 2.2 Limit the memory resources of applications
 
