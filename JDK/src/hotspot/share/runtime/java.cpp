@@ -448,7 +448,7 @@ void before_exit(JavaThread* thread) {
     }
   }
 
-  os::dump_thread_majflt_and_cputime("");
+  os::dump_current_thread_majflt_minflt_and_cputime("");
 
 #if INCLUDE_JVMCI
   // We are not using CATCH here because we want the exit to continue normally.
@@ -488,7 +488,11 @@ void before_exit(JavaThread* thread) {
   // Stop concurrent GC threads
   Universe::heap()->stop();
 
-  log_info(gc)("Majflt(exit jvm)=%ld", os::get_accum_majflt());
+  long majflt, minflt;
+  os::get_accum_majflt_minflt(&majflt, &minflt);
+  log_info(gc)("Majflt(exit jvm)=%ld", majflt);
+  log_info(gc)("Minflt(exit jvm)=%ld", minflt);
+  os::dump_accum_thread_majflt_minflt_and_cputime("Exit jvm");
 
   // Print GC/heap related information.
   Log(gc, heap, exit) log;

@@ -262,7 +262,7 @@ void G1ConcurrentMarkThread::run_service() {
 
     GCIdMark gc_id_mark;
 
-    os::dump_thread_majflt_and_cputime("beforeConcCycle-");
+    os::dump_accum_thread_majflt_minflt_and_cputime("beforeConcCycle");
     _cm->concurrent_cycle_start();
 
     GCTraceConcTime(Info, gc) tt("Concurrent Cycle");
@@ -406,7 +406,7 @@ void G1ConcurrentMarkThread::run_service() {
 
       _cm->concurrent_cycle_end();
     }
-    os::dump_thread_majflt_and_cputime("afterConcCycle-");
+    os::dump_accum_thread_majflt_minflt_and_cputime("afterConcCycle");
 
     cpmanager.set_phase(G1ConcurrentPhase::IDLE, _cm->has_aborted() /* force */);
   }

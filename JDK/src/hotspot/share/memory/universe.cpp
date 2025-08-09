@@ -739,7 +739,11 @@ CollectedHeap* Universe::create_heap() {
 // HeapBased - Use compressed oops with heap base + encoding.
 
 jint Universe::initialize_heap() {
-	log_info(gc)("Majflt(init heap)=%ld", os::get_accum_majflt());
+	long majflt, minflt;
+	os::get_accum_majflt_minflt(&majflt, &minflt);
+	log_info(gc)("Majflt(init heap)=%ld", majflt);
+	log_info(gc)("Minflt(init heap)=%ld", minflt);
+	os::dump_accum_thread_majflt_minflt_and_cputime("Init heap");
 
 	_collectedHeap = create_heap();
 	jint status = _collectedHeap->initialize();
